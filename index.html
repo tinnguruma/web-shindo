@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>センサ</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="https://unpkg.com/mathjs@11.10.0/lib/browser/math.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+    <h1>おせんさーですわよ</h1>
+    <input type="button" id="permit" value="1.Allow(motion)">
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <div>
+        x: <span id="xx"></span>m/s^2<br>
+        y: <span id="yy"></span>m/s^2<br>
+        z: <span id="zz"></span>m/s^2<br>
+    </div>
+    <div>
+        震度: <span id="shindo"></span>
+    </div>
+
+    <!-- <script src="shindo.js"></script> -->
+    <script src="main.js"></script>
+</body>
+
+</html>
