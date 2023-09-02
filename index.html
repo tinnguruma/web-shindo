@@ -2,28 +2,59 @@
 <html>
 
 <head>
-    <title>センサ</title>
-    <link rel="stylesheet" href="index.css">
+    <title>震度計算</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="popup.css">
     <script src="https://unpkg.com/mathjs@11.10.0/lib/browser/math.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 
 <body>
-    <h1>おせんさーですわよ</h1>
-    <input type="button" id="permit" value="1.Allow(motion)">
+    <h1>加速度から震度計算</h1>
+
+    <button id="permit">加速度センサ使用</button>
+    <button id="refresh">更新</button>
+
+    <!-- グラフ -->
     <div id="canvas-container">
         <canvas id="canvas"></canvas>
     </div>
-    <div>
-        x: <span id="xx"></span>m/s^2<br>
-        y: <span id="yy"></span>m/s^2<br>
-        z: <span id="zz"></span>m/s^2<br>
-    </div>
-    <div>
-        震度: <span id="shindo"></span>
+
+    <div class="display">
+        <div id="acc">
+            x: <span id="xx"></span>m/s^2<br>
+            y: <span id="yy"></span>m/s^2<br>
+            z: <span id="zz"></span>m/s^2<br>
+        </div>
+        <div id="result">
+            震度: <span id="shindo">--</span>
+        </div>
     </div>
 
-    <!-- <script src="shindo.js"></script> -->
+
+    <!-- 詳細設定画面 -->
+
+    <label class="open" for="pop-up">各種設定</label>
+    <input type="checkbox" id="pop-up">
+    <div class="overlay">
+        <div class="window">
+            <label class="close" for="pop-up">閉じる</label>
+
+
+            <h4>詳細設定</h4>
+            <p>いろんな値を変更できちゃいます！</p>
+            計算データ数：<input type="number" value="50"><br>
+            計算頻度：<input type="number" value="30"><br>
+            拡大率(縦)：<input type="number" value="0.3"><br>
+            拡大率(横)：<input type="number" value="2"><br>
+            描画位置：<input type="number" value="0.666"><br>
+            fs：<input type="number" value="100"><br>
+
+
+        </div>
+    </div>
+
+
     <script src="main.js"></script>
 </body>
 

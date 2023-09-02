@@ -3,18 +3,20 @@ window.addEventListener("DOMContentLoaded", init);
 
 var canvas = document.getElementById('canvas');
 var container = document.getElementById('canvas-container');
+var refresh_element = document.getElementById('refresh');
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
-var ctx_x = canvas.getContext('2d');
-var ctx_y = canvas.getContext('2d');
-var ctx_z = canvas.getContext('2d');
+
+var ctx = canvas.getContext('2d');
 var xx = document.getElementById('xx');
 var yy = document.getElementById('yy');
 var zz = document.getElementById('zz');
 var sh = document.getElementById('shindo');
 
 var b_x = 0, b_y = 0, b_z = 0;
+var axis = 0;
+var cul_count = 0;
 
 var x_arr = [];
 var y_arr = [];
@@ -29,11 +31,7 @@ function init() {
     if (os == "iphone" || os == "iPad") {
         // safari用。DeviceOrientation APIの使用をユーザに許可して貰う
         document.querySelector("#permit").addEventListener("click", permitDeviceOrientationForSafari);
-        // window.addEventListener(
-        //     "deviceorientation",
-        //     detectAcceleration,
-        //     true
-        // );
+        refresh_element.addEventListener("click", refresh);
     } else if (os == "android") {
         window.addEventListener(
             "deviceorientationabsolute",
@@ -45,8 +43,18 @@ function init() {
     }
 }
 
+function refresh() {
+    scrollTo(0, 0)
+    container.scrollTo(0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    b_x = 0, b_y = 0, b_z = 0;
+    axis = 0;
+    cul_count = 0;
+}
 
-var cul_count = 0;
+
+var data_numbers = 50;
+var cul_frequency = 30;
 
 // 加速度が変化した時に実行される関数
 function detectAcceleration(event) {
@@ -69,26 +77,23 @@ function detectAcceleration(event) {
     y_arr.push(y_y);
     z_arr.push(z_z);
 
-    if (x_arr.length > 50) {
+    if (x_arr.length > data_numbers) {
         x_arr.shift()
         y_arr.shift()
         z_arr.shift()
     }
 
     cul_count += 1;
-    if (cul_count % 30 == 0) {
+    if (cul_count % cul_frequency == 0) {
         var shindo = calculateShindo(x_arr, y_arr, z_arr);
         sh.innerHTML = shindo;
     }
-
-
-
 }
 
 
-var axis = 1;
 var mag = 0.3;
 var speed = 2;
+var strokePosition = canvas.height * (3 / 4);
 
 // データ描画
 function draw(x, y, z) {
@@ -99,21 +104,21 @@ function draw(x, y, z) {
     var pointZ = (z * mag) + (canvas.height / 2);
 
     // 点を描画
-    ctx_x.strokeStyle = 'red';
-    ctx_x.beginPath();
-    ctx_x.moveTo(axis - 1, b_x)
-    ctx_x.lineTo(axis, pointX)
-    ctx_x.stroke()
-    ctx_y.strokeStyle = 'blue';
-    ctx_y.beginPath();
-    ctx_y.moveTo(axis - 1, b_y)
-    ctx_y.lineTo(axis, pointY)
-    ctx_y.stroke()
-    ctx_z.strokeStyle = 'green';
-    ctx_z.beginPath();
-    ctx_z.moveTo(axis - 1, b_z)
-    ctx_z.lineTo(axis, pointZ)
-    ctx_z.stroke()
+    ctx.strokeStyle = 'red';
+    ctx.beginPath();
+    ctx.moveTo(axis - 1, b_x)
+    ctx.lineTo(axis, pointX)
+    ctx.stroke()
+    ctx.strokeStyle = 'blue';
+    ctx.beginPath();
+    ctx.moveTo(axis - 1, b_y)
+    ctx.lineTo(axis, pointY)
+    ctx.stroke()
+    ctx.strokeStyle = 'green';
+    ctx.beginPath();
+    ctx.moveTo(axis - 1, b_z)
+    ctx.lineTo(axis, pointZ)
+    ctx.stroke()
 
     b_x = pointX
     b_y = pointY
@@ -121,26 +126,23 @@ function draw(x, y, z) {
 
 
     axis += speed
-    container.scrollTo(axis - 500, 0)
+    container.scrollTo(axis - strokePosition, 0)
 
 }
 
 
-//震度
+var fs = 100
 
-//fftは多分いける
-
+//震度計算関数
 function calculateShindo(acceleration_x, acceleration_y, acceleration_z) {
-    var fs = 100
 
-    // 1. ディジタル加速度記録3成分（水平動2成分、上下動1成分）のそれぞれのフーリエ変換を求める。
+    // 3方向加速度をそれぞれフーリエ変換
     var x_FFT = math.fft(acceleration_x);
     var y_FFT = math.fft(acceleration_y);
     var z_FFT = math.fft(acceleration_z);
 
     var num = x_FFT.length; // データ数(列数)
-    var n = Array.from(Array(num).keys()); // プロット軸元ネタ
-    // 0割回避＆疑似0値のため微小値を加算
+    var n = Array.from(Array(num).keys());
     var f = n.map(x => x / (num / fs) + 0.0000001); // 関数窓用プロット軸
     // 周期効果関数窓
     var winX = f.map(x => Math.sqrt(1 / x));
@@ -164,7 +166,6 @@ function calculateShindo(acceleration_x, acceleration_y, acceleration_z) {
     var fft_ew_ = y_FFT.map((x, i) => math.multiply(x, win[i]));
     var fft_ud_ = z_FFT.map((x, i) => math.multiply(x, win[i]));
 
-
     // 逆フーリエ変換
     var res_ns = math.ifft(fft_ns_);
     var res_ew = math.ifft(fft_ew_);
@@ -186,9 +187,6 @@ function calculateShindo(acceleration_x, acceleration_y, acceleration_z) {
 
     return y;
 }
-
-
-
 
 
 
@@ -223,7 +221,7 @@ function permitDeviceOrientationForSafari() {
     DeviceOrientationEvent.requestPermission()
         .then(response => {
             if (response === "granted") {
-                window.addEventListener("devicemotion", detectAcceleration);
+                window.addEventListener("devicemotion", detectAcceleration, true);
             }
         })
         .catch(error => {
@@ -264,68 +262,3 @@ function compassHeading(alpha, beta, gamma) {
 
     return compassHeading * (180 / Math.PI); // Compass Heading (in degrees)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ジャイロスコープと地磁気をセンサーから取得
-// function orientation(event) {
-
-//     let absolute = event.absolute;
-//     let alpha = event.alpha;
-//     let beta = event.beta;
-//     let gamma = event.gamma;
-
-//     let degrees;
-//     if (os == "iphone") {
-//         // webkitCompasssHeading値を採用
-//         degrees = event.webkitCompassHeading;
-
-//     } else {
-//         // deviceorientationabsoluteイベントのalphaを補正
-//         degrees = compassHeading(alpha, beta, gamma);
-//     }
-
-//     degrees = degrees.toPrecision(8);
-//     //document.querySelector("#direction").innerHTML = direction + " : " + degrees;
-
-
-
-
-// }
-
-
-
-//
-//
-// let direction;
-// if (
-//     (degrees > 337.5 && degrees < 360) ||
-//     (degrees > 0 && degrees < 22.5)
-// ) {
-//     direction = "N";
-// } else if (degrees > 22.5 && degrees < 67.5) {
-//     direction = "NE";
-// } else if (degrees > 67.5 && degrees < 112.5) {
-//     direction = "E";
-// } else if (degrees > 112.5 && degrees < 157.5) {
-//     direction = "SE";
-// } else if (degrees > 157.5 && degrees < 202.5) {
-//     direction = "S";
-// } else if (degrees > 202.5 && degrees < 247.5) {
-//     direction = "SW";
-// } else if (degrees > 247.5 && degrees < 292.5) {
-//     direction = "W";
-// } else if (degrees > 292.5 && degrees < 337.5) {
-//     direction = "NW";
-// }
