@@ -9,14 +9,16 @@ canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
 var ctx = canvas.getContext('2d');
+var ctx_bar = canvas.getContext('2d');
 var xx = document.getElementById('xx');
 var yy = document.getElementById('yy');
 var zz = document.getElementById('zz');
 var sh = document.getElementById('shindo');
 
 var b_x = 0, b_y = 0, b_z = 0;
-var axis = 0;
+var axis = canvas.height * (3 / 4);
 var cul_count = 0;
+var b_shindo = 0;
 
 var x_arr = [];
 var y_arr = [];
@@ -44,7 +46,7 @@ function init() {
 }
 
 function refresh() {
-    scrollTo(0, 0)
+    scrollTo(0, 0);
     container.scrollTo(0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     b_x = 0, b_y = 0, b_z = 0;
@@ -83,10 +85,33 @@ function detectAcceleration(event) {
         z_arr.shift()
     }
 
+    //数回に一回
     cul_count += 1;
     if (cul_count % cul_frequency == 0) {
         var shindo = calculateShindo(x_arr, y_arr, z_arr);
         sh.innerHTML = shindo;
+
+        //縦線
+        ctx_bar.strokeStyle = 'gray';
+        ctx_bar.beginPath();
+        var bar_x = axis - ((data_numbers * speed) * 1 / 2)
+        ctx_bar.moveTo(bar_x, 0)
+        ctx_bar.lineTo(bar_x, canvas.height)
+        ctx_bar.stroke()
+
+        //文字
+        ctx.font = '20px Arial'; // フォントの設定
+        ctx_bar.fillStyle = 'black';
+        ctx_bar.fillText(shindo, axis - ((data_numbers * speed)), canvas.height * (19 / 20)); // 文字を描画
+
+        //俺線s
+        ctx_bar.strokeStyle = 'black';
+        ctx_bar.beginPath();
+        ctx_bar.moveTo(bar_x - ((data_numbers * speed) / 1), canvas.height - (b_shindo * 8))
+        ctx_bar.lineTo(bar_x, canvas.height - (shindo * 8))
+        ctx_bar.stroke()
+
+        b_shindo = shindo
     }
 }
 
@@ -106,19 +131,20 @@ function draw(x, y, z) {
     // 点を描画
     ctx.strokeStyle = 'red';
     ctx.beginPath();
-    ctx.moveTo(axis - 1, b_x)
+    ctx.moveTo(axis - speed, b_x)
     ctx.lineTo(axis, pointX)
     ctx.stroke()
     ctx.strokeStyle = 'blue';
     ctx.beginPath();
-    ctx.moveTo(axis - 1, b_y)
+    ctx.moveTo(axis - speed, b_y)
     ctx.lineTo(axis, pointY)
     ctx.stroke()
     ctx.strokeStyle = 'green';
     ctx.beginPath();
-    ctx.moveTo(axis - 1, b_z)
+    ctx.moveTo(axis - speed, b_z)
     ctx.lineTo(axis, pointZ)
     ctx.stroke()
+
 
     b_x = pointX
     b_y = pointY
