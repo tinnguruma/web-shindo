@@ -24,7 +24,7 @@ var x_arr = [];
 var y_arr = [];
 var z_arr = [];
 
-var data_numbers, cul_frequency, mag, speed, strokePosition, fs;
+var data_numbers = 50, cul_frequency = 30, mag = 0.3, speed = 2, strokePosition = 0.666, fs = 100;
 
 //初期化
 function init() {
