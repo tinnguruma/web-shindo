@@ -24,16 +24,19 @@ var x_arr = [];
 var y_arr = [];
 var z_arr = [];
 
+var data_numbers, cul_frequency, mag, speed, strokePosition, fs;
 
 //初期化
 function init() {
-    scrollTo(0, 0)
-    container.scrollTo(0, 0);
     os = detectOSSimply();
+
+    refresh()
+
+    refresh_element.addEventListener("click", refresh);
+
     if (os == "iphone" || os == "iPad") {
         // safari用。DeviceOrientation APIの使用をユーザに許可して貰う
         document.querySelector("#permit").addEventListener("click", permitDeviceOrientationForSafari);
-        refresh_element.addEventListener("click", refresh);
     } else if (os == "android") {
         window.addEventListener(
             "deviceorientationabsolute",
@@ -49,14 +52,18 @@ function refresh() {
     scrollTo(0, 0);
     container.scrollTo(0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    b_x = 0, b_y = 0, b_z = 0;
+
     axis = 0;
     cul_count = 0;
+
+    data_numbers = document.getElementById('dataCount').value;
+    cul_frequency = document.getElementById('frequency').value;
+    mag = document.getElementById('V_mag').value;
+    speed = document.getElementById('H_mag').value;
+    strokePosition = document.getElementById('position').value;
+    fs = document.getElementById('fs').value;
 }
 
-
-var data_numbers = 50;
-var cul_frequency = 30;
 
 // 加速度が変化した時に実行される関数
 function detectAcceleration(event) {
@@ -116,9 +123,6 @@ function detectAcceleration(event) {
 }
 
 
-var mag = 0.3;
-var speed = 2;
-var strokePosition = canvas.height * (3 / 4);
 
 // データ描画
 function draw(x, y, z) {
@@ -156,8 +160,6 @@ function draw(x, y, z) {
 
 }
 
-
-var fs = 100
 
 //震度計算関数
 function calculateShindo(acceleration_x, acceleration_y, acceleration_z) {
