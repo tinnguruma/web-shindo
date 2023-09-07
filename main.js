@@ -24,7 +24,8 @@ var x_arr = [];
 var y_arr = [];
 var z_arr = [];
 
-var data_numbers = 50, cul_frequency = 30, mag = 0.3, speed = 2, strokePosition = 0.666, fs = 100;
+var data_numbers = 50, cul_frequency = 30, mag = 0.3, speed = 2, position = 0.666, fs = 100;
+var strokePosition = canvas.height * position;
 
 //初期化
 function init() {
@@ -48,6 +49,7 @@ function init() {
     }
 }
 
+
 function refresh() {
     scrollTo(0, 0);
     container.scrollTo(0, 0);
@@ -56,13 +58,16 @@ function refresh() {
     axis = 0;
     cul_count = 0;
 
-    data_numbers = document.getElementById('dataCount').value;
-    cul_frequency = document.getElementById('frequency').value;
-    mag = document.getElementById('V_mag').value;
-    speed = document.getElementById('H_mag').value;
-    strokePosition = document.getElementById('position').value;
-    fs = document.getElementById('fs').value;
+    // data_numbers = document.getElementById('dataCount').value;
+    // cul_frequency = document.getElementById('frequency').value;
+    // mag = document.getElementById('V_mag').value;
+    // speed = document.getElementById('H_mag').value;
+    // position = document.getElementById('position').value;
+    // strokePosition = canvas.height * position;
+    // fs = document.getElementById('fs').value;
 }
+
+
 
 
 // 加速度が変化した時に実行される関数
